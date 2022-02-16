@@ -18,7 +18,7 @@ app.use("/users", userRouter);
 
 const handleProtected = (req, res) => {
   return res.send("Welcome Login!!!");
-}
+};
 
 app.get("/", () => console.log(11));
 app.get("/protected", handleProtected);
