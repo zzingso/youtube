@@ -1,5 +1,4 @@
-import { rsort } from "prettier";
-import Video from "../models/Video";
+import Video from "../models/Video.js";
 
 export const home = async (req, res) => {
   try {
@@ -18,7 +17,7 @@ export const watch = async (req, res) => {
     return res.status(404).render("404", { pageTitle: "Video not found." });
   }
 };
-export const getEdit = (req, res) => {
+export const getEdit = async (req, res) => {
   const { id } = req.params;
   const video = await Video.findById(id);
   if (video) {

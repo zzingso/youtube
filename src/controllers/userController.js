@@ -1,7 +1,6 @@
-import User from "../models/User";
+import User from "../models/User.js";
 import fetch from "node-fetch";
 import bcrypt from "bcrypt";
-import { redirect } from "express/lib/response";
 
 export const getJoin = (req, res) => res.render("join", { pageTitle: "Join" });
 export const postJoin = async (req, res) => {
@@ -72,7 +71,7 @@ export const startGithubLogin = (req, res) => {
   };
   const params = new URLSearchParams(config).toString();
   const finalUrl = `${baseUrl}?${params}`;
-  return res, redirect(finalUrl);
+  return res.redirect(finalUrl);
 };
 
 export const finishGithubLogin = async (req, res) => {
@@ -102,7 +101,6 @@ export const finishGithubLogin = async (req, res) => {
         },
       })
     ).json();
-
     const emailData = await (
       await fetch(`${apiUrl}/user/emails`, {
         headers: {
@@ -136,9 +134,26 @@ export const finishGithubLogin = async (req, res) => {
   }
 };
 
-export const edit = (req, res) => res.send("Edit User");
 export const logout = (req, res) => {
   req.session.destroy();
   return res.redirect("/");
 };
+
+export const startKakaoLogin = (req, res) => {
+  const baseUrl = "https://kauth.kakao.com";
+  const config = {
+    client_id: process.env.KAKAO_CLIENT,
+    redirect_url: "http://localhost:4000/users/kakao/finish",
+    response_type: "code",
+  };
+  const params = new URLSearchParams(config);
+  const finalUrl = `${baseUrl}?${params}`;
+  return res.redirect(finalUrl);
+};
+
+export const finishKakaoLogin = (req, res) => {
+  return res.end();
+};
+
+export const edit = (req, res) => res.send("Edit User");
 export const see = (req, res) => res.send("See User");
