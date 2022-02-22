@@ -143,7 +143,7 @@ export const startKakaoLogin = (req, res) => {
   const baseUrl = "https://kauth.kakao.com";
   const config = {
     client_id: process.env.KAKAO_CLIENT,
-    redirect_url: "http://localhost:4000/users/kakao/finish",
+    redirect_uri: "http://localhost:4000/users/kakao/finish",
     response_type: "code",
   };
   const params = new URLSearchParams(config);
@@ -152,6 +152,7 @@ export const startKakaoLogin = (req, res) => {
 };
 
 export const finishKakaoLogin = (req, res) => {
+  console.log("finish");
   return res.end();
 };
 
