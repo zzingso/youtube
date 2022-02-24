@@ -2,7 +2,9 @@ import User from "../models/User.js";
 import fetch from "node-fetch";
 import bcrypt from "bcrypt";
 
-export const getJoin = (req, res) => res.render("join", { pageTitle: "Join" });
+export const getJoin = (req, res) => {
+  return res.render("join", { pageTitle: "Join" });
+};
 export const postJoin = async (req, res) => {
   const { name, username, email, password, password2, location } = req.body;
   const pageTitle = "Join";
@@ -140,20 +142,57 @@ export const logout = (req, res) => {
 };
 
 export const startKakaoLogin = (req, res) => {
-  const baseUrl = "https://kauth.kakao.com";
+  const baseUrl = "https://kauth.kakao.com/oauth/authorize";
   const config = {
     client_id: process.env.KAKAO_CLIENT,
     redirect_uri: "http://localhost:4000/users/kakao/finish",
     response_type: "code",
+    state: process.env.KAKAO_STATE,
   };
   const params = new URLSearchParams(config);
   const finalUrl = `${baseUrl}?${params}`;
   return res.redirect(finalUrl);
 };
 
-export const finishKakaoLogin = (req, res) => {
-  console.log("finish");
-  return res.end();
+export const finishKakaoLogin = async (req, res) => {
+  const baseUrl = "https://kauth.kakao.com/oauth/token";
+  const config = {
+    grant_type: "authorization_code",
+    client_id: process.env.KAKAO_CLIENT,
+    redirect_uri: "http://localhost:4000/users/kakao/finish",
+    code: req.query.code,
+    client_secret: process.env.KAKAO_SECRET,
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+
+  const tokenRequest = await (
+    await fetch(finalUrl, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+      },
+    })
+  ).json();
+  console.log(tokenRequest);
+
+  if ("access_token" in tokenRequest) {
+    const apiUrl = "https://kapi.kakao.com";
+    const { access_token } = tokenRequest;
+    const userData = await (
+      await fetch(`${apiUrl}/v2/user/me`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      })
+    ).json();
+    console.log(userData);
+    return res.end();
+  } else {
+    return res.redirect("/login");
+  }
 };
 
 export const edit = (req, res) => res.send("Edit User");
